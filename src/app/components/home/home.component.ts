@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { AnimeService } from '../../services/anime.service';
-
+import { saveAs } from 'file-saver';
 @Component({
   selector: 'app-home',
   standalone: true,
@@ -23,8 +23,10 @@ export class HomeComponent implements OnInit {
   }
 
   async processAnimes() {
-    for (let index = 0; index < 1000; index++) {
-      await this.delay(2000); // Espera 100 milisegundos antes de la siguiente iteración
+    const records: any[] = [];
+
+    for (let index = 0; index <= 1805; index++) {
+      await this.delay(900); // Espera 100 milisegundos antes de la siguiente iteración
 
       this.animeS.dataAnime(index).subscribe({
         next: (res: any) => {
@@ -34,24 +36,33 @@ export class HomeComponent implements OnInit {
 
           // Extraer el título
           const title = doc.querySelector('title')?.textContent;
-          if (title) {
-            console.log('Título del documento:', title);
-          }
+          const record: any = { title: title, links: [] };
 
-          // Verificar enlaces de Google Drive
+          // Verificar enlaces de Google Drive y Mega
           const links = doc.querySelectorAll('a');
           links.forEach(link => {
             if (link.href.includes('drive.google.com')) {
-              console.log('Google Drive link found:', link.href);
+              record.links.push({ type: 'Google Drive', href: link.href });
             }
 
             if (link.href.includes('https://mega.nz')) {
-              console.log('Mega link found:', link.href);
+              record.links.push({ type: 'Mega', href: link.href });
             }
           });
+
+          // Añadir el registro a la lista de registros
+          records.push(record);
         },
         error: err => {
           console.log('Error =>', err);
+        },
+        complete: () => {
+          // Verificar si hemos procesado todas las iteraciones
+          if (index === 1805) {
+            // Guardar el archivo JSON al final
+            const blob = new Blob([JSON.stringify(records, null, 2)], { type: 'application/json' });
+            saveAs(blob, 'anime_records.json');
+          }
         }
       });
     }
