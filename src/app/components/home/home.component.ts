@@ -14,17 +14,19 @@ export class HomeComponent implements OnInit {
 
 
   ngOnInit(): void {
-    this.loadData();
+    this.processAnimes();
   }
 
 
-  loadData() {
+  delay(ms: any) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  async processAnimes() {
     for (let index = 0; index < 1000; index++) {
+      await this.delay(2000); // Espera 100 milisegundos antes de la siguiente iteración
 
-
-    }
-    this.animeS.dataAnime(102)
-      .subscribe({
+      this.animeS.dataAnime(index).subscribe({
         next: (res: any) => {
           // Usar DOMParser para convertir la respuesta en un documento HTML
           const parser = new DOMParser();
@@ -42,14 +44,16 @@ export class HomeComponent implements OnInit {
             if (link.href.includes('drive.google.com')) {
               console.log('Google Drive link found:', link.href);
             }
+
             if (link.href.includes('https://mega.nz')) {
-              console.log('MEga link found:', link.href);
+              console.log('Mega link found:', link.href);
             }
           });
         },
         error: err => {
-          console.log('Error => ', err);
+          console.log('Error =>', err);
         }
       });
+    }
   }
 }
